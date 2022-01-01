@@ -132,6 +132,17 @@ func MarshalIndent(v interface{}, prefix, indent string) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+// MarshalPrefix works like Marshal, but uses modified prefix handling
+func MarshalPrefix(v interface{}) ([]byte, error) {
+	var b bytes.Buffer
+	enc := NewEncoder(&b)
+	enc.NamespacePrefix()
+	if err := enc.Encode(v); err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
+}
+
 // An Encoder writes XML data to an output stream.
 type Encoder struct {
 	p printer
@@ -150,6 +161,10 @@ func NewEncoder(w io.Writer) *Encoder {
 func (enc *Encoder) Indent(prefix, indent string) {
 	enc.p.prefix = prefix
 	enc.p.indent = indent
+}
+
+func (enc *Encoder) NamespacePrefix() {
+	enc.p.namespacePrefix = true
 }
 
 // Encode writes the XML encoding of v to the stream.
@@ -302,17 +317,18 @@ func (enc *Encoder) Flush() error {
 
 type printer struct {
 	*bufio.Writer
-	encoder    *Encoder
-	seq        int
-	indent     string
-	prefix     string
-	depth      int
-	indentedIn bool
-	putNewline bool
-	attrNS     map[string]string // map prefix -> name space
-	attrPrefix map[string]string // map name space -> prefix
-	prefixes   []string
-	tags       []Name
+	encoder         *Encoder
+	seq             int
+	indent          string
+	prefix          string
+	depth           int
+	indentedIn      bool
+	putNewline      bool
+	namespacePrefix bool              // new handling of namespace prefixes
+	attrNS          map[string]string // map prefix -> name space
+	attrPrefix      map[string]string // map name space -> prefix
+	prefixes        []string
+	tags            []Name
 }
 
 // createAttrPrefix finds the name space prefix attribute to use for the given name space,
@@ -699,9 +715,15 @@ func (p *printer) writeStart(start *StartElement) error {
 
 	p.writeIndent(1)
 	p.WriteByte('<')
+
+	if start.Name.Space != "" && start.Name.Space != xmlnsPrefix && p.namespacePrefix {
+		p.WriteString("adept")
+		p.WriteByte(':')
+	}
+
 	p.WriteString(start.Name.Local)
 
-	if start.Name.Space != "" {
+	if start.Name.Space != "" && (strings.Contains(start.Name.Space, "http") || !p.namespacePrefix) {
 		p.WriteString(` xmlns="`)
 		p.EscapeString(start.Name.Space)
 		p.WriteByte('"')

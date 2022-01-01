@@ -133,6 +133,12 @@ func Unmarshal(data []byte, v interface{}) error {
 	return NewDecoder(bytes.NewReader(data)).Decode(v)
 }
 
+func UnmarshalPrefix(data []byte, v interface{}) error {
+	dec := NewDecoder(bytes.NewReader(data))
+	dec.NamespacePrefix = true
+	return dec.Decode(v)
+}
+
 // Decode works like Unmarshal, except it reads the decoder
 // stream to find the start element.
 func (d *Decoder) Decode(v interface{}) error {
@@ -426,7 +432,8 @@ func (d *Decoder) unmarshal(val reflect.Value, start *StartElement) error {
 			if finfo.name != "" && finfo.name != start.Name.Local {
 				return UnmarshalError("expected element type <" + finfo.name + "> but have <" + start.Name.Local + ">")
 			}
-			if finfo.xmlns != "" && finfo.xmlns != start.Name.Space {
+			// Final clause is new, modified behavior
+			if finfo.xmlns != "" && finfo.xmlns != start.Name.Space && (finfo.xmlns != d.ns[start.Name.Space] || !d.NamespacePrefix) {
 				e := "expected element <" + finfo.name + "> in name space " + finfo.xmlns + " but have "
 				if start.Name.Space == "" {
 					e += "no name space"

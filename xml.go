@@ -206,6 +206,9 @@ type Decoder struct {
 	// the attribute xmlns="DefaultSpace".
 	DefaultSpace string
 
+	// NamespacePrefix enables modified handling of namespace prefixes
+	NamespacePrefix bool
+
 	r              io.ByteReader
 	t              TokenReader
 	buf            bytes.Buffer
@@ -308,6 +311,7 @@ func (d *Decoder) Token() (Token, error) {
 		// attributes apply to the element name and
 		// to the other attribute names, so process
 		// the translations first.
+
 		for _, a := range t1.Attr {
 			if a.Name.Space == xmlnsPrefix {
 				v, ok := d.ns[a.Name.Local]
@@ -359,7 +363,8 @@ func (d *Decoder) translate(n *Name, isElementName bool) {
 	case n.Space == "" && n.Local == xmlnsPrefix:
 		return
 	}
-	if v, ok := d.ns[n.Space]; ok {
+	// This is the old behavior, configurable with flag
+	if v, ok := d.ns[n.Space]; ok && !d.NamespacePrefix {
 		n.Space = v
 	} else if n.Space == "" {
 		n.Space = d.DefaultSpace
