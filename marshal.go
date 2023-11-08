@@ -767,6 +767,10 @@ func (p *printer) writeEnd(name Name) error {
 	p.writeIndent(-1)
 	p.WriteByte('<')
 	p.WriteByte('/')
+	if name.Space != "" {
+		p.WriteString(name.Space)
+		p.WriteByte(':')
+	}
 	p.WriteString(name.Local)
 	p.WriteByte('>')
 	p.popPrefix()
