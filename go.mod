@@ -1,3 +1,3 @@
-module github.com/JJTech0130/encoding-xml
+module github.com/notmarek/encoding-xml
 
 go 1.17
