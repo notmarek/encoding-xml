@@ -732,7 +732,7 @@ func (p *printer) writeStart(start *StartElement) error {
 	// Attributes
 	for _, attr := range start.Attr {
 		name := attr.Name
-		if name.Local == "" {
+		if name.Local == "" || name.Local == "xmlns" {
 			continue
 		}
 		p.WriteByte(' ')
