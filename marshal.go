@@ -723,11 +723,11 @@ func (p *printer) writeStart(start *StartElement) error {
 
 	p.WriteString(start.Name.Local)
 
-	if start.Name.Space != "" && (strings.Contains(start.Name.Space, "http") || !p.namespacePrefix) {
-		p.WriteString(` xmlns="`)
-		p.EscapeString(start.Name.Space)
-		p.WriteByte('"')
-	}
+	// if start.Name.Space != "" && (strings.Contains(start.Name.Space, "http") || !p.namespacePrefix) {
+	// 	p.WriteString(` xmlns="`)
+	// 	p.EscapeString(start.Name.Space)``
+	// 	p.WriteByte('"')
+	// }
 
 	// Attributes
 	for _, attr := range start.Attr {
