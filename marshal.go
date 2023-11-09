@@ -359,7 +359,7 @@ func (p *printer) createAttrPrefix(url string) string {
 		prefix = prefix[i+1:]
 	}
 	if prefix == "" || !isName([]byte(prefix)) || strings.Contains(prefix, ":") {
-		prefix = "_"
+		prefix = "dc" // fall back to dc cuz fuck it
 	}
 	// xmlanything is reserved and any variant of it regardless of
 	// case should be matched, so:
@@ -737,7 +737,7 @@ func (p *printer) writeStart(start *StartElement) error {
 		}
 		p.WriteByte(' ')
 		if name.Space != "" {
-			p.WriteString(name.Space)
+			p.WriteString(createAttrPrefix(name.Space))
 			p.WriteByte(':')
 		}
 		p.WriteString(name.Local)
