@@ -717,7 +717,7 @@ func (p *printer) writeStart(start *StartElement) error {
 	p.WriteByte('<')
 
 	if start.Name.Space != "" && start.Name.Space != xmlnsPrefix && p.namespacePrefix {
-		p.WriteString("adept")
+		p.WriteString(name.Space)
 		p.WriteByte(':')
 	}
 
