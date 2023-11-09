@@ -737,7 +737,7 @@ func (p *printer) writeStart(start *StartElement) error {
 		}
 		p.WriteByte(' ')
 		if name.Space != "" {
-			p.WriteString(o.createAttrPrefix(name.Space))
+			p.WriteString(p.createAttrPrefix(name.Space))
 			p.WriteByte(':')
 		}
 		p.WriteString(name.Local)
